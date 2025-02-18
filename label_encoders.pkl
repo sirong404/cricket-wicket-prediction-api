@@ -1,0 +1,17 @@
+import joblib
+from sklearn.preprocessing import LabelEncoder
+
+# Train label encoders
+label_encoders = {}
+categorical_columns = ["venue", "batting_team", "batter", "bowler", "non_striker"]
+
+for col in categorical_columns:
+    le = LabelEncoder()
+    df[col] = le.fit_transform(df[col])
+    label_encoders[col] = le
+
+# Save the label encoders
+joblib.dump(label_encoders, "label_encoders.pkl")
+
+# Save the trained model
+joblib.dump(model, "fine_tuned_random_forest.pkl")
