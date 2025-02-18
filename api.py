@@ -1,5 +1,3 @@
-import uvicorn
-import os
 from fastapi import FastAPI
 import joblib
 import pandas as pd
@@ -9,6 +7,11 @@ model = joblib.load("fine_tuned_random_forest.pkl")
 
 # Create FastAPI instance
 app = FastAPI()
+
+# Root endpoint
+@app.get("/")
+def home():
+    return {"message": "Cricket Wicket Prediction API is live!"}
 
 # Define the prediction endpoint
 @app.post("/predict_wicket")
@@ -36,8 +39,3 @@ def predict_wicket(
     probability = model.predict_proba(input_data)[0][1]  # Probability of a wicket
 
     return {"wicket_prediction": int(prediction), "wicket_probability": round(probability * 100, 2)}
-
-# Run the API using the PORT provided by Render
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))  # Default to 8000 if PORT not found
-    uvicorn.run(app, host="0.0.0.0", port=port)
