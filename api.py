@@ -1,3 +1,5 @@
+import uvicorn
+import os
 from fastapi import FastAPI
 import joblib
 import pandas as pd
@@ -28,9 +30,14 @@ def predict_wicket(
         runs_batter, runs_total, extras, over_number, delivery_number
     ]], columns=["venue", "batting_team", "batter", "bowler", "non_striker",
                  "runs_batter", "runs_total", "extras", "over_number", "delivery_number"])
-    
+
     # Make prediction
     prediction = model.predict(input_data)[0]
     probability = model.predict_proba(input_data)[0][1]  # Probability of a wicket
 
     return {"wicket_prediction": int(prediction), "wicket_probability": round(probability * 100, 2)}
+
+# Run the API using the PORT provided by Render
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))  # Default to 8000 if PORT not found
+    uvicorn.run(app, host="0.0.0.0", port=port)
