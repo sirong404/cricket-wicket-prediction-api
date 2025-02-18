@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import joblib
 import pandas as pd
@@ -21,13 +21,19 @@ class WicketPredictionInput(BaseModel):
     over_number: int
     delivery_number: int
 
-# Define the prediction endpoint (expects JSON input)
 @app.post("/predict_wicket")
 def predict_wicket(input_data: WicketPredictionInput):
-    df = pd.DataFrame([input_data.dict()])
+    try:
+        print("Received Data:", input_data.dict())  # Print incoming data for debugging
 
-    # Make prediction
-    prediction = model.predict(df)[0]
-    probability = model.predict_proba(df)[0][1]  # Probability of a wicket
+        df = pd.DataFrame([input_data.dict()])
 
-    return {"wicket_prediction": int(prediction), "wicket_probability": round(probability * 100, 2)}
+        # Make prediction
+        prediction = model.predict(df)[0]
+        probability = model.predict_proba(df)[0][1]  # Probability of a wicket
+
+        return {"wicket_prediction": int(prediction), "wicket_probability": round(probability * 100, 2)}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Prediction Error: {e}")
+
